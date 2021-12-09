@@ -31,7 +31,6 @@ function print {
 }
 
 function update_system {
-	stderr=""
 	print "Updating Available package list..." "green"
 	$UPDATE_SYSTEM
 	if [ $? -ne 0 ];then
