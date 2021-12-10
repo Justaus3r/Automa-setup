@@ -72,7 +72,9 @@ function download_n_install_shid {
 	git clone $VSCODE_GIT_LINK
 	cd visual-studio-code-bin
 	yes | makepkg -si
-	cd ../ && rm -rf visual-studio-code-bin 	
+	if [ $? -eq 0 ];then
+		cd ../ && rm -rf visual-studio-code-bin
+	fi 	
 }
 
 function yo_mothafucka {
