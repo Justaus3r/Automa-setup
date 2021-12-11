@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 # A script for personal use on arch-based live environment
+#WARNING:Many things done in this script are  terrible like updating like bare/partial updating(see https://wiki.archlinux.org/title/System_maintenance#Partial_upgrades_are_unsupported) ,unefficent,etc
+
 
 RED_COLOR='\033[0;31m'
 GREEN_COLOR='\033[0;32m'
@@ -62,7 +64,12 @@ function install_pip {
 	rm get-pip.py
 }
 
+function update_mirror_list {
+	sudo cp ../res/mirrorlist /etc/pacman.d/mirrorlist
+}
+
 function download_n_install_shid {
+	local retry_limit=0
 	for ((i = 0; i < 5; i++ ));do
 		python3 -m pip install ${PYTHON_PACKAGES[i]}
 	done
@@ -74,6 +81,18 @@ function download_n_install_shid {
 	yes | makepkg -si
 	if [ $? -eq 0 ];then
 		cd ../ && rm -rf visual-studio-code-bin
+	else
+		if [ $retry_limit -eq 0 ];then
+			print "ERROR:An error occured!,Updating mirror-list" "red"
+			print "Retrying!" "yellow"
+			retry_limit=1
+			update_mirror_list
+			sudo pacman -Syy
+			download_n_install_shid
+		else
+			print "ERROR:Unable to resolve error automatically!,please resolve it manually and run the script again" "red"
+			exit
+		fi	
 	fi 	
 }
 
