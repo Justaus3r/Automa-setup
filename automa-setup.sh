@@ -15,7 +15,7 @@ VSCODE_GIT_LINK="https://aur.archlinux.org/visual-studio-code-bin.git"
 UPDATE_SYSTEM="sudo pacman -Sy" # should be usin "sudo pacman -Syu" as -Sy could break other packages but ehhh ima go with it anyway
 DEPENDENCIES=("wget" "git")
 PIP_CMD="python3 -m pip"
-PYTHON_PACKAGES=("ptpython" "rich" "xonsh" "pygments" "prompt-toolkit")
+PYTHON_PACKAGES=("ptpython" "rich" "xonsh" "pygments" "prompt-toolkit" "ranger-fm")
 declare -A ARG_HASHTABLE=( ["editor"]="nvim" ) # neko's default editor zzz nvim
 ARG_ARRAY=( ${@} )
 ARG_ARRAY_COPY=$ARG_ARRAY
