@@ -15,11 +15,12 @@ VSCODE_GIT_LINK="https://aur.archlinux.org/visual-studio-code-bin.git"
 UPDATE_SYSTEM="sudo pacman -Sy" # should be usin "sudo pacman -Syu" as -Sy could break other packages but ehhh ima go with it anyway
 DEPENDENCIES=("wget" "git")
 PIP_CMD="python3 -m pip"
-PYTHON_PACKAGES=("ptpython" "rich" "xonsh" "pygments" "prompt-toolkit" "ranger-fm" "updog")
+PYTHON_PACKAGES=("ptpython" "rich" "xonsh" "pygments" "prompt-toolkit" "ranger-fm")
 declare -A ARG_HASHTABLE=( ["editor"]="nvim" ) # neko's default editor zzz nvim
 ARG_ARRAY=( ${@} )
 ARG_ARRAY_COPY=$ARG_ARRAY
 index_of_return_val=0
+NVIM_CONF_PATH="$HOME/.config/nvim/"
 
 print() {
     local string=$1
@@ -47,6 +48,13 @@ print() {
 powise_hewp_onichan() {
     print "No hewp for you!,you are a dirty,horny and a slutty neko" "red"
     exit 0
+}
+
+stderr_print() {
+    print "ERROR:$1" "red"
+    if [[ $2 = "quit_after" ]];then
+        exit -1
+    fi
 }
 
 gen_index_of() {
@@ -161,9 +169,7 @@ update_system() {
     print "Updating Available package list..." "green"
     $UPDATE_SYSTEM
     if [[ $? -ne 0 ]];then
-        print "ERROR:Couldn't update the package list" "red"
-        print "Resolve the error manually and run the script again." "yellow"
-        exit
+        stderr_print "Couldn't update the package list\nResolve the error manually and run the script again." "quit_after"
     fi
 }
 
@@ -171,8 +177,7 @@ check_dependencies() {
     print "Verifying dependencies.." "green"
     for dependency in ${DEPENDENCIES[@]};do
         if [[ ! -x "$(command -v $dependency)" ]];then
-            print "ERROR:$dependency is not installed" "red"
-            exit
+            stderr_print "$dependency is not installed" "quit_after"
         fi
     done
 }
@@ -200,6 +205,17 @@ install_pip_packages() {
     done
 }
 
+sync_nvim_configs() {
+    print "Cloning init.vim from gihtub.com/justaus3r/init.vim.." "cyan"
+    git clone https://github.com/Justaus3r/init.vim.git 2>/dev/null
+    if [[ $? -ne 0 ]];then
+        stderr_print "An error occured while cloning init.vim from github.com/justaus3r/init.vim,resolve the error manually" "quit_after"  
+    fi
+    chmod +x init.vim/install.sh
+    init.vim/install.sh
+}
+
+
 install_editor() {
     local retry_limit=0
     local _editor=$1
@@ -215,15 +231,14 @@ install_editor() {
             cd ../ && rm -rf visual-studio-code-bin
         else
             if [[ $retry_limit -eq 0 ]];then
-                print "ERROR:An error occured!,Updating mirror-list" "red"
+                stderr_print "An error occured!,Updating mirror-list"
                 print "Retrying!" "yellow"
                 retry_limit=1
                 update_mirror_list
                 sudo pacman -Syy
                 download_n_install_shid
             else
-                print "ERROR:Unable to resolve error automatically!,please resolve it manually and run the script again" "red"
-                exit -1
+                stderr_print "Unable to resolve error automatically!,please resolve it manually and run the script again" "quit_after"
             fi
         fi
         elif [[ $_editor = "nvim" || $_editor = "neovim" ]];then
@@ -233,7 +248,7 @@ install_editor() {
         fi
         yes | sudo pacman -S neovim
         if [[ $? -ne 0 ]];then
-            print "ERROR:An error occured while installing package 'neovim',please install it manually and run the script again to resume!" "red"
+            stderr_print "An error occured while installing package 'neovim',please install it manually and run the script again to resume!" "quit_after"
         fi
     else
         print "WARNING:The package is not in default editors list,enter package name(optional,s to skip):" "yellow" "no_escape"
@@ -244,10 +259,16 @@ install_editor() {
         fi
         yes | sudo pacman -S $package_name
         if [[ $? -ne 0 ]];then
-            print "ERROR:An error occured while installing '$package_name'" "red"
+            stderr_print "An error occured while installing '$package_name'"  
         fi
     fi
+    if [[ -d %NVIM_CONF_PATH ]];then
+        print "Neovim seems to be configured!" "cyan"
+        return 0
+    fi
+    sync_nvim_configs
 }
+
 
 ayi_neko_chan() {
     print "Ayi!,so you have ~~c~u~m~b~a~k~a~~(i mean come back).." "cyan"
