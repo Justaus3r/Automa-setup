@@ -206,13 +206,17 @@ install_pip_packages() {
 }
 
 sync_nvim_configs() {
-    print "Cloning init.vim from gihtub.com/justaus3r/init.vim.." "cyan"
-    git clone https://github.com/Justaus3r/init.vim.git 2>/dev/null
-    if [[ $? -ne 0 ]];then
-        stderr_print "An error occured while cloning init.vim from github.com/justaus3r/init.vim,resolve the error manually" "quit_after"  
+    if [[ ! -d "./init.vim" ]];then  
+        print "Cloning init.vim from gihtub.com/justaus3r/init.vim.." "cyan"
+        git clone https://github.com/Justaus3r/init.vim.git 2>/dev/null
+        if [[ $? -ne 0 ]];then
+            stderr_print "An error occured while cloning init.vim from github.com/justaus3r/init.vim,resolve the error manually" "quit_after"  
+        fi
     fi
-    chmod +x init.vim/install.sh
-    init.vim/install.sh
+    cd init.vim
+    chmod +x install.sh
+    ./install.sh
+    cd ../
 }
 
 
@@ -241,14 +245,14 @@ install_editor() {
                 stderr_print "Unable to resolve error automatically!,please resolve it manually and run the script again" "quit_after"
             fi
         fi
-        elif [[ $_editor = "nvim" || $_editor = "neovim" ]];then
-        if [[ -x $(command -v nvim) ]];then
-            print "Neovim is installed!" "green"
-            return 0
-        fi
-        yes | sudo pacman -S neovim
-        if [[ $? -ne 0 ]];then
-            stderr_print "An error occured while installing package 'neovim',please install it manually and run the script again to resume!" "quit_after"
+    elif [[ $_editor = "nvim" || $_editor = "neovim" ]];then
+        if [[ ! -x $(command -v nvim) ]];then
+            print "Neovim not found,installing.." "yellow"
+            yes | sudo pacman -S neovim
+        
+             if [[ $? -ne 0 ]];then
+                 stderr_print "An error occured while installing package 'neovim',please install it manually and run the script again to resume!" "quit_after"
+             fi
         fi
     else
         print "WARNING:The package is not in default editors list,enter package name(optional,s to skip):" "yellow" "no_escape"
@@ -262,7 +266,7 @@ install_editor() {
             stderr_print "An error occured while installing '$package_name'"  
         fi
     fi
-    if [[ -d %NVIM_CONF_PATH ]];then
+    if [[ -d $NVIM_CONF_PATH ]];then
         print "Neovim seems to be configured!" "cyan"
         return 0
     fi
