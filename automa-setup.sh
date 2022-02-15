@@ -16,12 +16,14 @@ UPDATE_SYSTEM="sudo pacman -Sy" # should be usin "sudo pacman -Syu" as -Sy could
 DEPENDENCIES=("wget" "git")
 PIP_CMD="python3 -m pip"
 PYTHON_PACKAGES=("ptpython" "rich" "xonsh" "pygments" "prompt-toolkit" "ranger-fm")
+QUTEBROWSER_CONF_BASEURL="https://gist.githubusercontent.com/Justaus3r/6c71fbe10a9d0d860613544500f98fe5/raw/39b42bb172460842290e3a75998f8f72927ec055/"
+QUTEBROWSER_CONF_FILENAMES=("config.py" "returnytdislike.js" "yt_adblock.js" "ytretrowavetheme.js")
 declare -A ARG_HASHTABLE=( ["editor"]="nvim" ) # neko's default editor zzz nvim
 ARG_ARRAY=( ${@} )
 ARG_ARRAY_COPY=$ARG_ARRAY
 index_of_return_val=0
 NVIM_CONF_PATH="$HOME/.config/nvim/"
-
+QUTES_CONF_PATH="$HOME/.config/qutebrowser/"
 print() {
     local string=$1
     local color=$2
@@ -273,6 +275,21 @@ install_editor() {
     sync_nvim_configs
 }
 
+installnsync_qutebrowser() {
+    if [[ ! -x $(command -v qutebrowser) ]];then
+        sudo pacman -S qutebrowser
+        if [[ $? -ne 0 ]];then
+            stderr_print "An error occured while installing qutebrowser,please install it manually and run the script again" "quit_after"
+        fi
+        for file in ${QUTEBROWSER_CONF_FILENAMES[@]};do
+            wget $QUTEBROWSER_CONF_BASEURL$file
+        done
+        cp ${QUTEBROWSER_CONF_FILENAMES[0]} $QUTES_CONF_PATH
+        cp  ${QUTEBROWSER_CONF_FILENAMES[1]} ${QUTEBROWSER_CONF_FILENAMES[2]} ${QUTEBROWSER_CONF_FILENAMES[3]} $QUTES_CONF_PATH/greasemonkey  
+        if [[ $? -ne 0 ]];then
+            stderr_print "Error while copying config" "quit_after"
+    fi
+}
 
 ayi_neko_chan() {
     print "Ayi!,so you have ~~c~u~m~b~a~k~a~~(i mean come back).." "cyan"
@@ -285,3 +302,4 @@ check_dependencies
 update_system
 install_pip_packages
 install_editor ${ARG_HASHTABLE['editor']}
+installnsync_qutebrowser
