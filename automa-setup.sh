@@ -12,11 +12,11 @@ CYAN_COLOR='\033[0;36m'
 COLOR_RESET='\e[0m'
 PIP_DOWNLOAD_LINK="https://bootstrap.pypa.io/get-pip.py"
 VSCODE_GIT_LINK="https://aur.archlinux.org/visual-studio-code-bin.git"
-UPDATE_SYSTEM="sudo pacman -Sy" # should be usin "sudo pacman -Syu" as -Sy could break other packages but ehhh ima go with it anyway
-DEPENDENCIES=("wget" "git")
+UPDATE_SYSTEM="sudo pacman -Sy"
 PIP_CMD="python3 -m pip"
-PYTHON_PACKAGES=("ptpython" "rich" "xonsh" "pygments" "prompt-toolkit" "ranger-fm")
-QUTEBROWSER_CONF_BASEURL="https://gist.githubusercontent.com/Justaus3r/6c71fbe10a9d0d860613544500f98fe5/raw/39b42bb172460842290e3a75998f8f72927ec055/"
+DEPENDENCIES=("wget" "git")
+PYTHON_PACKAGES=("ptpython" "rich" "xonsh" "pygments" "prompt-toolkit" "ranger-fm" "whoogle-search")
+QUTEBROWSER_CONF_BASEURL="https://gist.githubusercontent.com/Justaus3r/6c71fbe10a9d0d860613544500f98fe5/raw/7fb227d37d742849132ddb973c78506dbaf3f021/"
 QUTEBROWSER_CONF_FILENAMES=("config.py" "returnytdislike.js" "yt_adblock.js" "ytretrowavetheme.js")
 declare -A ARG_HASHTABLE=( ["editor"]="nvim" ) # neko's default editor zzz nvim
 ARG_ARRAY=( ${@} )
@@ -150,13 +150,14 @@ arg_parser() {
             echo "KYAAAAAAAAAAAAA"
         elif [[ $arg = '--nyaa' ]];then
             echo "NYAAAAAAAAAAAAA"
+       	elif [[ $arg = '--upgrade' || $arg = '-u' ]];then
+       		UPDATE_SYSTEM="sudo pacman -Syu"
         else
             echo $arg
             print "Kyaaaaaaaaaa!,you dirty neko!,don't tease me" "red"
             exit -1
         fi
-       
-        #gotta remove the args that have been processed from ARG_ARRAY
+       	#gotta remove the args that have been processed from ARG_ARRAY
         if [[ $rm_next_el = true ]];then
             remove_element $arg $param_arg
         else
@@ -277,18 +278,25 @@ install_editor() {
 
 installnsync_qutebrowser() {
     if [[ ! -x $(command -v qutebrowser) ]];then
-        sudo pacman -S qutebrowser
+        yes | sudo pacman -S qutebrowser
         if [[ $? -ne 0 ]];then
             stderr_print "An error occured while installing qutebrowser,please install it manually and run the script again" "quit_after"
         fi
+	fi
+	if [[ ! -d $QUTES_CONF_PATH ]];then
         for file in ${QUTEBROWSER_CONF_FILENAMES[@]};do
             wget $QUTEBROWSER_CONF_BASEURL$file
         done
+        print "Qute-browser will be started for a moment to let it do its initialization,which btw am too lazy to do my self..." "cyan"
+        qutebrowser &
+        sleep 3
+        pkill qutebrowser
         cp ${QUTEBROWSER_CONF_FILENAMES[0]} $QUTES_CONF_PATH
         cp  ${QUTEBROWSER_CONF_FILENAMES[1]} ${QUTEBROWSER_CONF_FILENAMES[2]} ${QUTEBROWSER_CONF_FILENAMES[3]} $QUTES_CONF_PATH/greasemonkey  
         if [[ $? -ne 0 ]];then
             stderr_print "Error while copying config" "quit_after"
-    fi
+        fi
+	fi    
 }
 
 ayi_neko_chan() {
