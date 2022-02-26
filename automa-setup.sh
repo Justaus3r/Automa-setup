@@ -16,7 +16,7 @@ UPDATE_SYSTEM="sudo pacman -Sy"
 PIP_CMD="python3 -m pip"
 DEPENDENCIES=("wget" "git")
 PYTHON_PACKAGES=("ptpython" "rich" "xonsh" "pygments" "prompt-toolkit" "ranger-fm" "whoogle-search")
-QUTEBROWSER_CONF_BASEURL="https://gist.githubusercontent.com/Justaus3r/6c71fbe10a9d0d860613544500f98fe5/raw/7fb227d37d742849132ddb973c78506dbaf3f021/"
+QUTEBROWSER_CONF_BASEURL="https://gist.githubusercontent.com/Justaus3r/b6cf267fdb3432243897b93ecf6fe3f4/raw/68fd6bd62d35b4634b7bab86cd22038d287cb8ed/"
 QUTEBROWSER_CONF_FILENAMES=("config.py" "returnytdislike.js" "yt_adblock.js" "ytretrowavetheme.js")
 declare -A ARG_HASHTABLE=( ["editor"]="nvim" ) # neko's default editor zzz nvim
 ARG_ARRAY=( ${@} )
